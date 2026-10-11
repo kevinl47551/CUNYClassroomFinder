@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cunyclassroomfinder.data.CUNYGlobalSearchRepository
 import com.example.cunyclassroomfinder.data.Course
+import com.example.cunyclassroomfinder.data.DatabaseRepository
 import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -11,7 +12,8 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 class DownloadScreenViewModel(
-    private val cunyRepo: CUNYGlobalSearchRepository
+    private val cunyRepo: CUNYGlobalSearchRepository,
+    private val databaseRepo: DatabaseRepository
 ): ViewModel() {
     private var availableSubjects = mutableListOf<Pair<String, String>>()
 

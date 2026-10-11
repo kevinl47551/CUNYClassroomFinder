@@ -9,7 +9,10 @@ import com.example.cunyclassroomfinder.ui.DownloadClasses.DownloadScreenViewMode
 
 object AppViewModelProvider {
     val factory = viewModelFactory {
-        initializer { DownloadScreenViewModel(application().container.cunyRepo) }
+        initializer { DownloadScreenViewModel(
+            application().container.cunyRepo,
+            application().container.databaseRepo
+        ) }
     }
 }
 

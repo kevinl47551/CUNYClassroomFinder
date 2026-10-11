@@ -1,5 +1,6 @@
 package com.example.cunyclassroomfinder.data
 
+import android.content.Context
 import com.example.cunyclassroomfinder.network.CUNYApiService
 import okhttp3.JavaNetCookieJar
 import okhttp3.OkHttpClient
@@ -8,7 +9,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.net.CookieManager
 import java.net.CookiePolicy
 
-class AppContainer {
+class AppContainer(private val context: Context) {
     val cookieManger = CookieManager().apply {
         setCookiePolicy(CookiePolicy.ACCEPT_ALL)
     }
@@ -31,4 +32,8 @@ class AppContainer {
     val cunyRepo: CUNYGlobalSearchRepository by lazy {
         CUNYGlobalSearchRepositoryRetrofit(retrofitService)
     }
+
+     val databaseRepo: DatabaseRepository by lazy {
+         DatabaseRepoRoom(CourseDatabase.getDatabase(context).courseDao())
+     }
 }
