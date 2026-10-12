@@ -1,4 +1,4 @@
-package com.example.cunyclassroomfinder.ui.DownloadClasses
+package com.example.cunyclassroomfinder.ui.downloadClasses
 
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable

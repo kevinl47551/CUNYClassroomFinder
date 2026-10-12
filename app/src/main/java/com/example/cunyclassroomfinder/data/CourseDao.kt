@@ -20,9 +20,9 @@ interface CourseDao {
             SELECT 1
             FROM courses c
             WHERE c.room = r.room
-            AND c.days & days > 0
-            AND c.timeStart < timeEnd
-            AND c.timeEnd > timeStart
+            AND c.days & :day > 0
+            AND c.timeStart < :timeEnd
+            AND c.timeEnd > :timeStart
         )
     """)
     suspend fun getAvailableRooms(

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.cunyclassroomfinder.CUNYClassroomFinderApplication
-import com.example.cunyclassroomfinder.ui.DownloadClasses.DownloadScreenViewModel
+import com.example.cunyclassroomfinder.ui.downloadClasses.DownloadScreenViewModel
 
 object AppViewModelProvider {
     val factory = viewModelFactory {

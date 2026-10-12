@@ -1,10 +1,12 @@
-package com.example.cunyclassroomfinder.ui.DownloadClasses
+package com.example.cunyclassroomfinder.ui.downloadClasses
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cunyclassroomfinder.data.CUNYGlobalSearchRepository
 import com.example.cunyclassroomfinder.data.Course
 import com.example.cunyclassroomfinder.data.DatabaseRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -22,14 +24,40 @@ class DownloadScreenViewModel(
     fun getAvailableCourses() {
         viewModelScope.launch {
             val parsedSubjects = parseSubjects(getAvailableSubjects())
-            val response = cunyRepo.scrapeCourses(
-                parsedSubjects[1].first,
-                parsedSubjects[1].second
-            )
-            if (response.isSuccessful) {
-                //println(response.body())
-                parseCourses(response.body().toString())
+
+            var allCourses: MutableList<Course> = mutableListOf()
+
+            val response = parsedSubjects.drop(1).map{ subjects ->
+                async {
+                    cunyRepo.scrapeCourses(
+                        subjects.first,
+                        subjects.second
+                    )
+                }
+            }.awaitAll()
+
+            //var temp = 0
+            for (res in response) {
+                if (res.isSuccessful) {
+                    allCourses.addAll(parseCourses(res.body() ?: ""))
+//                    println(temp)
+//                    temp++
+                }
             }
+
+
+
+
+//            for ((res, subject) in response.zip(parsedSubjects)) {
+//                println(subject.first)
+//                println(subject.second)
+//                if (!res.isSuccessful)
+//                    println("NOOOOOOOO I FAILED")
+//                else println("nice")
+//            }
+//            println(parsedSubjects.size)
+//            println(response.size)
+
         }
     }
 
@@ -44,28 +72,39 @@ class DownloadScreenViewModel(
         var i = 0
         while(i < classHtml.size) {
             val daysTimesString = daysAndTimesHtml[i].text()
-
+            println(daysTimesString)
             val days = daysTimesString.substringBefore(" ")
             val timeStart = daysTimesString.substringAfter(" ").substringBefore(" - ")
-            val timeEnd = daysTimesString.substringAfter(" - ")
+            val timeEnd = daysTimesString.substringAfter(" - ").substringBefore(" ")
 
-            //format days
+            //format days and times
             var dayBits = 0
             var j = 0
-            while(j < days.length) {
-                when(days.substring(j, j+2)) {
-                    "Mo" -> dayBits = dayBits or (1 shl 0)
-                    "Tu" -> dayBits = dayBits or (1 shl 1)
-                    "We" -> dayBits = dayBits or (1 shl 2)
-                    "Th" -> dayBits = dayBits or (1 shl 3)
-                    "Fr" -> dayBits = dayBits or (1 shl 4)
-                    "Sa" -> dayBits = dayBits or (1 shl 5)
-                    "Su" -> dayBits = dayBits or (1 shl 6)
+            var timeStartSeconds = 0
+            var timeEndSeconds = 0
+
+            // check for tba
+            if (daysTimesString.contains(":")) {
+                // format days
+                while (j < days.length) {
+                    when (days.substring(j, j + 2)) {
+                        "Mo" -> dayBits = dayBits or (1 shl 0)
+                        "Tu" -> dayBits = dayBits or (1 shl 1)
+                        "We" -> dayBits = dayBits or (1 shl 2)
+                        "Th" -> dayBits = dayBits or (1 shl 3)
+                        "Fr" -> dayBits = dayBits or (1 shl 4)
+                        "Sa" -> dayBits = dayBits or (1 shl 5)
+                        "Su" -> dayBits = dayBits or (1 shl 6)
+                    }
+                    j += 2
                 }
-                j += 2
+
+                //format time
+                timeStartSeconds = LocalTime.parse(timeStart, timeFormatter).toSecondOfDay()
+                timeEndSeconds = LocalTime.parse(timeEnd, timeFormatter).toSecondOfDay()
             }
 
-//            println(classHtml[i].text().toInt())
+            println(classHtml[i].text().toInt())
 //            println(days)
 //            println(dayBits)
 //            println(LocalTime.parse(timeStart, timeFormatter).toSecondOfDay())
@@ -76,8 +115,8 @@ class DownloadScreenViewModel(
             courses.add(Course(
                 classHtml[i].text().toInt(),
                 dayBits,
-                LocalTime.parse(timeStart, timeFormatter).toSecondOfDay(),
-                LocalTime.parse(timeEnd, timeFormatter).toSecondOfDay(),
+                timeStartSeconds,
+                timeEndSeconds,
                 roomHtml[i].text()
             ))
 
