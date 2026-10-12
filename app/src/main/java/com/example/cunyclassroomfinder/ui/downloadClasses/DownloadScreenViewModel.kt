@@ -45,7 +45,13 @@ class DownloadScreenViewModel(
                 }
             }
 
+            allCourses.filter { !(it.room.contains("TBA"))}
+            allCourses.filter { it.days > 0 }
 
+            databaseRepo.clearCourses()
+            databaseRepo.clearRooms()
+            databaseRepo.insertCoursesWRooms(allCourses)
+            println("YES YES YES")
 
 
 //            for ((res, subject) in response.zip(parsedSubjects)) {
