@@ -15,6 +15,7 @@ ksp = "2.3.4"
 okhttp = "4.12.0"
 lifecycle = "2.11.0"
 jsoup = "1.23.2"
+navigation = "2.7.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -42,6 +43,7 @@ okhttp-urlconnection = {group = "com.squareup.okhttp3", name = "okhttp-urlconnec
 lifecycle-viewmodel-compose = {group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle"}
 lifecycle-viewmodel-ktx = {group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle"}
 jsoup = {group = "org.jsoup", name = "jsoup", version.ref = "jsoup"}
+navigation = {group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

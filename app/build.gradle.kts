@@ -66,6 +66,9 @@ dependencies {
     //jsoup
     implementation(libs.jsoup)
 
+    //navigation
+    implementation(libs.navigation)
+
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

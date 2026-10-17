@@ -1,4 +1,4 @@
-package com.example.cunyclassroomfinder.ui.downloadClasses
+package com.example.cunyclassroomfinder.ui.scrape
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,11 +13,13 @@ import org.jsoup.nodes.Document
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-class DownloadScreenViewModel(
+class ScrapeScreenViewModel(
     private val cunyRepo: CUNYGlobalSearchRepository,
     private val databaseRepo: DatabaseRepository
 ): ViewModel() {
     private var availableSubjects = mutableListOf<Pair<String, String>>()
+    private var scrapedSubjects = mutableListOf<Pair<String, String>>()
+    private var failedToScrapSubjects = mutableListOf<Pair<String, String>>()
 
     private val timeFormatter = DateTimeFormatter.ofPattern("h:mma")
 
