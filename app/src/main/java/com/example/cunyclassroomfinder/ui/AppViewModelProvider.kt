@@ -5,12 +5,17 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.cunyclassroomfinder.CUNYClassroomFinderApplication
+import com.example.cunyclassroomfinder.ui.room.FindRoomViewModel
 import com.example.cunyclassroomfinder.ui.scrape.ScrapeScreenViewModel
 
 object AppViewModelProvider {
     val factory = viewModelFactory {
         initializer { ScrapeScreenViewModel(
             application().container.cunyRepo,
+            application().container.databaseRepo
+        ) }
+
+        initializer { FindRoomViewModel(
             application().container.databaseRepo
         ) }
     }

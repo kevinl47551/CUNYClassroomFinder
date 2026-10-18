@@ -1,8 +1,8 @@
 package com.example.cunyclassroomfinder.ui.room
 
-import com.example.cunyclassroomfinder.data.Course
+import com.example.cunyclassroomfinder.data.CunyRoom
 
 data class FindRoomUiState(
     val isLoading: Boolean = false,
-    val courses: List<Course> = listOf<Course>()
+    val rooms: List<CunyRoom> = listOf<CunyRoom>()
 )

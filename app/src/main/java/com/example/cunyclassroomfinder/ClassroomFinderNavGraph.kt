@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.cunyclassroomfinder.ui.HomeScreen
+import com.example.cunyclassroomfinder.ui.room.FindRoomScreen
 import com.example.cunyclassroomfinder.ui.scrape.ScrapeScreen
 
 enum class ClassroomFinderScreen() {
@@ -34,7 +35,6 @@ fun CUNYClassroomFinderNavHost(
             startDestination = ClassroomFinderScreen.Home.name,
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
         ) {
             composable(route = ClassroomFinderScreen.Home.name) {
@@ -47,7 +47,7 @@ fun CUNYClassroomFinderNavHost(
                 ScrapeScreen()
             }
             composable(route = ClassroomFinderScreen.Find.name) {
-
+                FindRoomScreen()
             }
         }
     }
