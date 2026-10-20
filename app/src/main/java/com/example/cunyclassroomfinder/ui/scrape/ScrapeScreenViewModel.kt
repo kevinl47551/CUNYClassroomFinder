@@ -47,8 +47,8 @@ class ScrapeScreenViewModel(
                 }
             }
 
-            allCourses.filter { !(it.room.contains("TBA"))}
-            allCourses.filter { it.days > 0 }
+            allCourses.retainAll { !(it.room.contains("TBA"))}
+            allCourses.retainAll { it.days > 0 }
 
             databaseRepo.clearCourses()
             databaseRepo.clearRooms()

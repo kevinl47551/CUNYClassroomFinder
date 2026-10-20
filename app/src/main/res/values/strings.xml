@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">CUNYClassroomFinder</string>
+    <string name="home">Home</string>
 </resources>

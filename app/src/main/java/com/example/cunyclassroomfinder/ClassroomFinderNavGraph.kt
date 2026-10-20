@@ -44,10 +44,10 @@ fun CUNYClassroomFinderNavHost(
                 )
             }
             composable(route = ClassroomFinderScreen.Scrape.name) {
-                ScrapeScreen()
+                ScrapeScreen(navToHome = {navController.navigate(ClassroomFinderScreen.Home.name)})
             }
             composable(route = ClassroomFinderScreen.Find.name) {
-                FindRoomScreen()
+                FindRoomScreen(navToHome = {navController.navigate(ClassroomFinderScreen.Home.name)})
             }
         }
     }

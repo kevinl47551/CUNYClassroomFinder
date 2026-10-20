@@ -1,9 +1,11 @@
 package com.example.cunyclassroomfinder.ui.room
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,16 +28,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.cunyclassroomfinder.R
 import com.example.cunyclassroomfinder.ui.AppViewModelProvider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FindRoomScreen(
+    navToHome: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FindRoomViewModel = viewModel(factory = AppViewModelProvider.factory)
 ) {
@@ -43,32 +49,43 @@ fun FindRoomScreen(
     val startTimeState = rememberTimePickerState()
     val endTimeState = rememberTimePickerState()
 
-    Column(
-        modifier = modifier
-    ) {
-        TimeInput(
-            state = startTimeState,
-        )
-        TimeInput(
-            state = endTimeState,
-        )
-        DayDropDown(selectDay = {viewModel.updateDay(it)})
-        Button(onClick = {
-            viewModel.getRooms(
-                startHour = startTimeState.hour,
-                startMin = startTimeState.minute,
-                endHour = endTimeState.hour,
-                endMin = endTimeState.minute
+    Box() {
+        Column(
+            modifier = modifier
+        ) {
+            TimeInput(
+                state = startTimeState,
             )
-        }) {}
-        Text(findRoomUiState.rooms.size.toString())
-        LazyColumn() {
-            items(findRoomUiState.rooms) { room ->
-                Text(text = room.room)
+            TimeInput(
+                state = endTimeState,
+            )
+            DayDropDown(selectDay = {viewModel.updateDay(it)})
+            Button(onClick = {
+                viewModel.getRooms(
+                    startHour = startTimeState.hour,
+                    startMin = startTimeState.minute,
+                    endHour = endTimeState.hour,
+                    endMin = endTimeState.minute
+                )
+            }) {}
+            Text(findRoomUiState.rooms.size.toString())
+            LazyColumn() {
+                items(findRoomUiState.rooms) { room ->
+                    Text(text = room.room)
+                }
             }
         }
 
+        Button(
+            onClick = navToHome,
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp)
+        ) {
+            Text(stringResource(R.string.home))
+        }
     }
+
 }
 
 
