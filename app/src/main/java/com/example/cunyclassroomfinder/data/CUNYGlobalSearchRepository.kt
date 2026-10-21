@@ -6,6 +6,7 @@ import retrofit2.Response
 interface CUNYGlobalSearchRepository {
     suspend fun scrapeSubjects(): Response<String>
     suspend fun scrapeCourses(selectedSubjectName: String, subjectName: String): Response<String>
+    suspend fun scrapeSchoolsAndTerms(): Response<String>
 }
 
 class CUNYGlobalSearchRepositoryRetrofit(
@@ -14,4 +15,6 @@ class CUNYGlobalSearchRepositoryRetrofit(
     override suspend fun scrapeSubjects(): Response<String> = cunyApiService.scrapeSubjects()
     override suspend fun scrapeCourses(selectedSubjectName: String, subjectName: String): Response<String> =
         cunyApiService.scrapeCourses(selectedSubjectName, subjectName)
+
+    override suspend fun scrapeSchoolsAndTerms(): Response<String> = cunyApiService.scrapeSchoolsAndTerms()
 }

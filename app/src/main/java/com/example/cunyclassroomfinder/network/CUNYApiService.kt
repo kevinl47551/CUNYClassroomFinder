@@ -3,6 +3,7 @@ package com.example.cunyclassroomfinder.network
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface CUNYApiService {
@@ -49,4 +50,7 @@ interface CUNYApiService {
         @Field("instructorName") instructorName: String = "",
         @Field("search_btn_search") searchButton: String = "Search"
     ): Response<String>
+
+    @GET("search.jsp")
+    suspend fun scrapeSchoolsAndTerms(): Response<String>
 }

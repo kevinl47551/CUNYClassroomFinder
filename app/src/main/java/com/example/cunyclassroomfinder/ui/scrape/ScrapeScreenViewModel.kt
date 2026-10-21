@@ -7,7 +7,11 @@ import com.example.cunyclassroomfinder.data.Course
 import com.example.cunyclassroomfinder.data.DatabaseRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.Response
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.time.LocalTime
@@ -17,9 +21,8 @@ class ScrapeScreenViewModel(
     private val cunyRepo: CUNYGlobalSearchRepository,
     private val databaseRepo: DatabaseRepository
 ): ViewModel() {
-    private var availableSubjects = mutableListOf<Pair<String, String>>()
-    private var scrapedSubjects = mutableListOf<Pair<String, String>>()
-    private var failedToScrapSubjects = mutableListOf<Pair<String, String>>()
+    private val _uiState = MutableStateFlow(ScrapeScreenUiState())
+    val uiState = _uiState.asStateFlow()
 
     private val timeFormatter = DateTimeFormatter.ofPattern("h:mma")
 
@@ -147,8 +150,8 @@ class ScrapeScreenViewModel(
     }
 
 
-    fun parseSubjects(firstHtmlPage: String): MutableList<Pair<String, String>> {
-        val doc: Document = Jsoup.parse(firstHtmlPage)
+    fun parseSubjects(subjectsHtmlPage: String): MutableList<Pair<String, String>> {
+        val doc: Document = Jsoup.parse(subjectsHtmlPage)
 
         val optionsHtml = doc.select("#subject_ld option")
         val parsedOptions = mutableListOf<Pair<String, String>>()
@@ -163,5 +166,42 @@ class ScrapeScreenViewModel(
         }
 
         return parsedOptions
+    }
+
+    suspend fun getAvailableSchoolsAndTerms(): String {
+        val response = cunyRepo.scrapeSchoolsAndTerms()
+
+        if (response.isSuccessful) return response.body().toString()
+        else return ""
+    }
+
+    fun parseSchoolsAndTerms(firstHtmlPage: String): MutableList<SchoolAndTerm> {
+        val doc: Document = Jsoup.parse(firstHtmlPage)
+
+        val schoolSelectHtml = doc.select("")
+        val termSelectHtml = doc.select("#selectedTerm select option").drop(1)
+        val parsedSchoolsAndTerms = mutableListOf<SchoolAndTerm>()
+
+        for ((school, term) in schoolSelectHtml.zip(termSelectHtml)) {
+            val instSelectionValue = school.attr("value")
+            val selectedInstName = doc.select("label[for=${instSelectionValue}]").text() + (" | ")
+
+            parsedSchoolsAndTerms.add(SchoolAndTerm(
+                selectedInstName = selectedInstName,
+                instSelection = instSelectionValue,
+                selectedTermName = term.text(),
+                termValue = term.attr("value")
+            ))
+        }
+
+        return parsedSchoolsAndTerms
+    }
+
+    fun setavailableSchoolsAndTerms(schoolsAndTerms: List<SchoolAndTerm>) {
+        _uiState.update { current ->
+            current.copy(
+                availableSchoolsAndTerms = schoolsAndTerms
+            )
+        }
     }
 }
