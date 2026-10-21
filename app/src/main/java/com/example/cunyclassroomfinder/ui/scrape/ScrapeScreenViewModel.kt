@@ -47,7 +47,7 @@ class ScrapeScreenViewModel(
                 }
             }
 
-            allCourses.retainAll { !(it.room.contains("TBA"))}
+            allCourses.retainAll { !(it.room.contains("TBA", true) || it.room.contains("Off Campus", true))}
             allCourses.retainAll { it.days > 0 }
 
             databaseRepo.clearCourses()
@@ -74,59 +74,61 @@ class ScrapeScreenViewModel(
         val classHtml = doc.select("td[data-label=Class]")
         val daysAndTimesHtml = doc.select("td[data-label=DaysAndTimes]")
         val roomHtml = doc.select("td[data-label=Room]")
+        val courseTopicHtml = doc.select("td[data-label='Course Topic']")
 
         val courses = mutableListOf<Course>()
 
+        // loops through all courses / sections in one page
         var i = 0
         while(i < classHtml.size) {
-            val daysTimesString = daysAndTimesHtml[i].text()
-            println(daysTimesString)
-            val days = daysTimesString.substringBefore(" ")
-            val timeStart = daysTimesString.substringAfter(" ").substringBefore(" - ")
-            val timeEnd = daysTimesString.substringAfter(" - ").substringBefore(" ")
+            val daysTimesNodes = daysAndTimesHtml[i].textNodes()
+            val roomNodes = roomHtml[i].textNodes()
 
-            //format days and times
-            var dayBits = 0
-            var j = 0
-            var timeStartSeconds = 0
-            var timeEndSeconds = 0
+            // loops through if multiple day/times in a section
+            for ((dayTimesNode, roomNode) in daysTimesNodes.zip(roomNodes)) {
+                val daysTimesString = dayTimesNode.text().trim()
 
-            // check for tba
-            if (daysTimesString.contains(":")) {
-                // format days
-                while (j < days.length) {
-                    when (days.substring(j, j + 2)) {
-                        "Mo" -> dayBits = dayBits or (1 shl 0)
-                        "Tu" -> dayBits = dayBits or (1 shl 1)
-                        "We" -> dayBits = dayBits or (1 shl 2)
-                        "Th" -> dayBits = dayBits or (1 shl 3)
-                        "Fr" -> dayBits = dayBits or (1 shl 4)
-                        "Sa" -> dayBits = dayBits or (1 shl 5)
-                        "Su" -> dayBits = dayBits or (1 shl 6)
+                val days = daysTimesString.substringBefore(" ")
+                val timeStart = daysTimesString.substringAfter(" ").substringBefore(" - ")
+                val timeEnd = daysTimesString.substringAfter(" - ").substringBefore(" ")
+
+                //format days and times
+                var dayBits = 0
+                var j = 0
+                var timeStartSeconds = 0
+                var timeEndSeconds = 0
+
+                // check if contains time
+                if (daysTimesString.contains(":")) {
+                    // format days
+                    while (j < days.length) {
+                        when (days.substring(j, j + 2)) {
+                            "Mo" -> dayBits = dayBits or (1 shl 0)
+                            "Tu" -> dayBits = dayBits or (1 shl 1)
+                            "We" -> dayBits = dayBits or (1 shl 2)
+                            "Th" -> dayBits = dayBits or (1 shl 3)
+                            "Fr" -> dayBits = dayBits or (1 shl 4)
+                            "Sa" -> dayBits = dayBits or (1 shl 5)
+                            "Su" -> dayBits = dayBits or (1 shl 6)
+                        }
+                        j += 2
                     }
-                    j += 2
+
+                    //format time
+                    timeStartSeconds = LocalTime.parse(timeStart, timeFormatter).toSecondOfDay()
+                    timeEndSeconds = LocalTime.parse(timeEnd, timeFormatter).toSecondOfDay()
+
+                    //add to course list
+                    courses.add(Course(
+                        classHtml[i].text().toInt(),
+                        dayBits,
+                        timeStartSeconds,
+                        timeEndSeconds,
+                        roomNode.text(),
+                        courseTopicHtml[i].text()
+                    ))
                 }
-
-                //format time
-                timeStartSeconds = LocalTime.parse(timeStart, timeFormatter).toSecondOfDay()
-                timeEndSeconds = LocalTime.parse(timeEnd, timeFormatter).toSecondOfDay()
             }
-
-            println(classHtml[i].text().toInt())
-//            println(days)
-//            println(dayBits)
-//            println(LocalTime.parse(timeStart, timeFormatter).toSecondOfDay())
-//            println(LocalTime.parse(timeEnd, timeFormatter).toSecondOfDay())
-//            println(roomHtml[i].text())
-
-            //add to course list
-            courses.add(Course(
-                classHtml[i].text().toInt(),
-                dayBits,
-                timeStartSeconds,
-                timeEndSeconds,
-                roomHtml[i].text()
-            ))
 
             i += 1
         }
