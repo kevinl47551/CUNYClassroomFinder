@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 @Entity(
     tableName = "courses",
     primaryKeys = ["days", "timeStart", "timeEnd", "room"],
-    indices = [Index(value = ["room"])],
+    indices = [Index(value = ["school"])],
     foreignKeys = [ForeignKey(
         entity = CunyRoom::class,
         parentColumns = ["room"],
@@ -16,6 +16,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class Course(
+    val school: String,
     val classId: Int,
     val days: Int,
     val timeStart: Int,
@@ -26,9 +27,11 @@ data class Course(
 
 
 @Entity(
-    tableName = "rooms"
+    tableName = "rooms",
+    indices = [Index(value = ["school"])],
 )
 data class CunyRoom(
     @PrimaryKey
-    val room: String
+    val room: String,
+    val school: String
 )

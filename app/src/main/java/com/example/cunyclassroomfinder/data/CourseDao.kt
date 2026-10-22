@@ -23,7 +23,7 @@ interface CourseDao {
     @Transaction
     suspend fun insertCoursesWRooms(courses: List<Course>) {
         val rooms = courses
-            .map { CunyRoom(room = it.room) }
+            .map { CunyRoom(room = it.room, school = it.school) }
             .distinctBy { it.room }
         insertRooms(rooms)
         insertCourses(courses)

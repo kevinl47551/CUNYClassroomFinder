@@ -123,6 +123,7 @@ class ScrapeScreenViewModel(
 
                     //add to course list
                     courses.add(Course(
+                        _uiState.value.currentSchool.selectedName,
                         classHtml[i].text().toInt(),
                         dayBits,
                         timeStartSeconds,
@@ -141,7 +142,10 @@ class ScrapeScreenViewModel(
 
     suspend fun getAvailableSubjects(): String {
         var subjectsHtml = ""
-        val response = cunyRepo.scrapeSubjects()
+        val response = cunyRepo.scrapeSubjects(
+            _uiState.value.currentSchool,
+            _uiState.value.currentTerm
+        )
 
         if (response.isSuccessful)
             subjectsHtml = response.body().toString()
@@ -171,23 +175,25 @@ class ScrapeScreenViewModel(
     suspend fun getAvailableSchoolsAndTerms(): String {
         val response = cunyRepo.scrapeSchoolsAndTerms()
 
-        if (response.isSuccessful) return response.body().toString()
+        if (response.isSuccessful) {
+            return response.body().toString()
+        }
         return ""
     }
 
     fun parseSchoolsAndSetTerms(firstHtmlPage: String): Unit {
         val doc: Document = Jsoup.parse(firstHtmlPage)
 
-        val schoolSelectHtml = doc.select("")
-        val termSelectHtml = doc.select("#selectedTerm select option").drop(1)
-        val parsedSchools = mutableListOf<SchoolOption>()
-        val parsedTerms = mutableListOf<TermOption>()
+        val schoolSelectHtml = doc.select("input[name=inst_selection]")
+        val termSelectHtml = doc.select("select[name=term_value] option").drop(1)
+        val parsedSchools = mutableListOf<NameWithValueOption>()
+        val parsedTerms = mutableListOf<NameWithValueOption>()
 
         for (school in schoolSelectHtml) {
             val instSelectionValue = school.attr("value")
             val selectedInstName = doc.select("label[for=${instSelectionValue}]").text() + (" | ")
 
-            parsedSchools.add(SchoolOption(
+            parsedSchools.add(NameWithValueOption(
                 selectedInstName,
                 instSelectionValue
             ))
@@ -195,9 +201,9 @@ class ScrapeScreenViewModel(
 
         for (term in termSelectHtml) {
 
-            parsedTerms.add(TermOption(
-                selectedTermName = term.text(),
-                termValue = term.attr("value")
+            parsedTerms.add(NameWithValueOption(
+                term.text(),
+                term.attr("value")
             ))
         }
 
@@ -206,6 +212,19 @@ class ScrapeScreenViewModel(
                 availableSchools = parsedSchools,
                 availableTerms = parsedTerms
             )
+        }
+    }
+
+
+    fun setCurrentSchool(school: NameWithValueOption) {
+        _uiState.update { current ->
+            current.copy(currentSchool = school)
+        }
+    }
+
+    fun setCurrentTerm(term: NameWithValueOption) {
+        _uiState.update { current ->
+            current.copy(currentTerm = term)
         }
     }
 }
