@@ -102,7 +102,7 @@ class ScrapeScreenViewModel(
                 var timeEndSeconds = 0
 
                 // check if contains time
-                if (daysTimesString.contains(":")) {
+                if (daysTimesString.contains(":") && !days.contains(":")) {
                     // format days
                     while (j < days.length) {
                         when (days.substring(j, j + 2)) {
