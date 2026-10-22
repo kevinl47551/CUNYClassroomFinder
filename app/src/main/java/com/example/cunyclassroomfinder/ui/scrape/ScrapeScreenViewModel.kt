@@ -172,35 +172,39 @@ class ScrapeScreenViewModel(
         val response = cunyRepo.scrapeSchoolsAndTerms()
 
         if (response.isSuccessful) return response.body().toString()
-        else return ""
+        return ""
     }
 
-    fun parseSchoolsAndTerms(firstHtmlPage: String): MutableList<SchoolAndTerm> {
+    fun parseSchoolsAndSetTerms(firstHtmlPage: String): Unit {
         val doc: Document = Jsoup.parse(firstHtmlPage)
 
         val schoolSelectHtml = doc.select("")
         val termSelectHtml = doc.select("#selectedTerm select option").drop(1)
-        val parsedSchoolsAndTerms = mutableListOf<SchoolAndTerm>()
+        val parsedSchools = mutableListOf<SchoolOption>()
+        val parsedTerms = mutableListOf<TermOption>()
 
-        for ((school, term) in schoolSelectHtml.zip(termSelectHtml)) {
+        for (school in schoolSelectHtml) {
             val instSelectionValue = school.attr("value")
             val selectedInstName = doc.select("label[for=${instSelectionValue}]").text() + (" | ")
 
-            parsedSchoolsAndTerms.add(SchoolAndTerm(
-                selectedInstName = selectedInstName,
-                instSelection = instSelectionValue,
+            parsedSchools.add(SchoolOption(
+                selectedInstName,
+                instSelectionValue
+            ))
+        }
+
+        for (term in termSelectHtml) {
+
+            parsedTerms.add(TermOption(
                 selectedTermName = term.text(),
                 termValue = term.attr("value")
             ))
         }
 
-        return parsedSchoolsAndTerms
-    }
-
-    fun setavailableSchoolsAndTerms(schoolsAndTerms: List<SchoolAndTerm>) {
         _uiState.update { current ->
             current.copy(
-                availableSchoolsAndTerms = schoolsAndTerms
+                availableSchools = parsedSchools,
+                availableTerms = parsedTerms
             )
         }
     }
