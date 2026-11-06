@@ -56,6 +56,7 @@ interface CourseDao {
     @Query("""
         DELETE 
         FROM courses
+        WHERE school = :school
     """)
-    suspend fun clearCourses()
+    suspend fun clearCourses(school: String)
 }

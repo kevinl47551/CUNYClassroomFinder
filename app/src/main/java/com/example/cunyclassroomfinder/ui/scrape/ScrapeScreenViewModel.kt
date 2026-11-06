@@ -53,8 +53,7 @@ class ScrapeScreenViewModel(
             allCourses.retainAll { !(it.room.contains("TBA", true) || it.room.contains("Off Campus", true))}
             allCourses.retainAll { it.days > 0 }
 
-            databaseRepo.clearCourses()
-            databaseRepo.clearRooms()
+            databaseRepo.clearCourses(_uiState.value.currentSchool.selectedName)
             databaseRepo.insertCoursesWRooms(allCourses)
             println("YES YES YES")
 

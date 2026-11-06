@@ -15,5 +15,5 @@ interface DatabaseRepository {
 
     suspend fun clearRooms()
 
-    suspend fun clearCourses()
+    suspend fun clearCourses(school: String)
 }

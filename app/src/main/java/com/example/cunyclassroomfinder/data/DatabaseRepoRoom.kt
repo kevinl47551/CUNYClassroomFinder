@@ -16,5 +16,5 @@ class DatabaseRepoRoom(private val courseDao: CourseDao) : DatabaseRepository {
 
     override suspend fun clearRooms() = courseDao.clearRooms()
 
-    override suspend fun clearCourses() = courseDao.clearCourses()
+    override suspend fun clearCourses(school: String) = courseDao.clearCourses(school)
 }
