@@ -59,6 +59,11 @@ fun FindRoomScreen(
             TimeInput(
                 state = endTimeState,
             )
+            SchoolDropDown(
+                schools = findRoomUiState.availableSchools,
+                selected = findRoomUiState.currentSchool,
+                selectSchool = { viewModel.setCurrentSchool(it) }
+            )
             DayDropDown(selectDay = {viewModel.updateDay(it)})
             Button(onClick = {
                 viewModel.getRooms(
@@ -88,6 +93,48 @@ fun FindRoomScreen(
 
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SchoolDropDown(
+    schools: List<String>,
+    selected: String,
+    selectSchool: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    // Stored school names carry the server's trailing " | ", so trim it for display.
+    fun displayName(school: String) = school.removeSuffix(" | ").trim()
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it && schools.isNotEmpty() }
+    ) {
+        OutlinedTextField(
+            value = if (schools.isEmpty()) "No scraped schools" else displayName(selected),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("school") },
+            modifier = Modifier
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            schools.forEach { school ->
+                DropdownMenuItem(
+                    text = { Text(displayName(school)) },
+                    onClick = {
+                        expanded = false
+                        selectSchool(school)
+                    }
+                )
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

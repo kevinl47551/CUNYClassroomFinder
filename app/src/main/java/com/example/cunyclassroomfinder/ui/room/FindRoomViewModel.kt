@@ -22,6 +22,31 @@ class FindRoomViewModel(
     var day by mutableStateOf(1)
         private set
 
+    init {
+        loadSchools()
+    }
+
+    // Schools come from the rooms table, so only schools that have been scraped appear.
+    fun loadSchools() {
+        viewModelScope.launch {
+            val schools = databaseRepo.getSchools()
+            _uiState.update { current ->
+                current.copy(
+                    availableSchools = schools,
+                    currentSchool = current.currentSchool
+                        .takeIf { it in schools }
+                        ?: schools.firstOrNull().orEmpty()
+                )
+            }
+        }
+    }
+
+    fun setCurrentSchool(school: String) {
+        _uiState.update { current ->
+            current.copy(currentSchool = school, rooms = listOf())
+        }
+    }
+
     fun updateDay(newDay: String) {
         when (newDay) {
             "Monday" -> day = 1
@@ -45,6 +70,7 @@ class FindRoomViewModel(
             val endTime = (endHour * 3600) + endMin * 60
 
             val availableRooms = databaseRepo.getAvailableRooms(
+                school = _uiState.value.currentSchool,
                 day = day,
                 startTime,
                 endTime

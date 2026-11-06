@@ -3,16 +3,15 @@ package com.example.cunyclassroomfinder.data
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "courses",
-    primaryKeys = ["days", "timeStart", "timeEnd", "room"],
-    indices = [Index(value = ["school"])],
+    primaryKeys = ["school", "room", "days", "timeStart", "timeEnd"],
+    indices = [Index(value = ["school"]), Index(value = ["school", "room"])],
     foreignKeys = [ForeignKey(
         entity = CunyRoom::class,
-        parentColumns = ["room"],
-        childColumns = ["room"]
+        parentColumns = ["school", "room"],
+        childColumns = ["school", "room"]
     )]
 )
 data class Course(
@@ -28,10 +27,10 @@ data class Course(
 
 @Entity(
     tableName = "rooms",
+    primaryKeys = ["school", "room"],
     indices = [Index(value = ["school"])],
 )
 data class CunyRoom(
-    @PrimaryKey
     val room: String,
     val school: String
 )

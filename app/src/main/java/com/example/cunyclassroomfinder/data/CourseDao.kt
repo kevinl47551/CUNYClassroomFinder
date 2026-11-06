@@ -24,7 +24,7 @@ interface CourseDao {
     suspend fun insertCoursesWRooms(courses: List<Course>) {
         val rooms = courses
             .map { CunyRoom(room = it.room, school = it.school) }
-            .distinctBy { it.room }
+            .distinctBy { it.school to it.room }
         insertRooms(rooms)
         insertCourses(courses)
     }
@@ -32,20 +32,30 @@ interface CourseDao {
     @Query("""
         SELECT r.*
         FROM rooms r
-        WHERE NOT EXISTS (
+        WHERE r.school = :school
+        AND NOT EXISTS (
             SELECT 1
             FROM courses c
-            WHERE c.room = r.room
+            WHERE c.school = r.school
+            AND c.room = r.room
             AND c.days & :day > 0
             AND c.timeStart < :timeEnd
             AND c.timeEnd > :timeStart
         )
     """)
     suspend fun getAvailableRooms(
+        school: String,
         day: Int,
         timeStart: Int,
         timeEnd: Int
     ): List<CunyRoom>
+
+    @Query("""
+        SELECT DISTINCT school
+        FROM rooms
+        ORDER BY school
+    """)
+    suspend fun getSchools(): List<String>
 
     @Query("""
         DELETE 

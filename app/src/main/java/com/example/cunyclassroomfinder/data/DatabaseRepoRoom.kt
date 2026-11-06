@@ -11,8 +11,10 @@ class DatabaseRepoRoom(private val courseDao: CourseDao) : DatabaseRepository {
 
     override suspend fun insertCoursesWRooms(courses: List<Course>) = courseDao.insertCoursesWRooms(courses)
 
-    override suspend fun getAvailableRooms(day: Int, timeStart: Int, timeEnd: Int): List<CunyRoom> =
-        courseDao.getAvailableRooms(day, timeStart, timeEnd)
+    override suspend fun getAvailableRooms(school: String, day: Int, timeStart: Int, timeEnd: Int): List<CunyRoom> =
+        courseDao.getAvailableRooms(school, day, timeStart, timeEnd)
+
+    override suspend fun getSchools(): List<String> = courseDao.getSchools()
 
     override suspend fun clearRooms() = courseDao.clearRooms()
 

@@ -11,7 +11,9 @@ interface DatabaseRepository {
 
     suspend fun insertCoursesWRooms(courses: List<Course>)
 
-    suspend fun getAvailableRooms(day: Int, timeStart: Int, timeEnd: Int): List<CunyRoom>
+    suspend fun getAvailableRooms(school: String, day: Int, timeStart: Int, timeEnd: Int): List<CunyRoom>
+
+    suspend fun getSchools(): List<String>
 
     suspend fun clearRooms()
 

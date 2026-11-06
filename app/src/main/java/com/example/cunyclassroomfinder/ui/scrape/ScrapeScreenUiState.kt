@@ -1,7 +1,11 @@
 package com.example.cunyclassroomfinder.ui.scrape
 
 data class ScrapeScreenUiState(
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
+    // What the current network job is doing, shown next to the progress indicator
+    val loadingMessage: String = "",
+    // Non-null when the last network job failed
+    val errorMessage: String? = null,
     val availableSchools: List<NameWithValueOption> = listOf(),
     val availableTerms: List<NameWithValueOption> = listOf(),
     val currentSchool: NameWithValueOption = NameWithValueOption(),
