@@ -42,6 +42,7 @@ interface CourseDao {
             AND c.timeStart < :timeEnd
             AND c.timeEnd > :timeStart
         )
+        ORDER BY r.room
     """)
     suspend fun getAvailableRooms(
         school: String,

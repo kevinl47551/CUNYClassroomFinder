@@ -1,9 +1,5 @@
 package com.example.cunyclassroomfinder.ui.room
 
-import androidx.compose.material3.TimePickerState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cunyclassroomfinder.data.DatabaseRepository
@@ -18,9 +14,6 @@ class FindRoomViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(FindRoomUiState())
     val uiState: StateFlow<FindRoomUiState> = _uiState.asStateFlow()
-
-    var day by mutableStateOf(1)
-        private set
 
     init {
         loadSchools()
@@ -43,20 +36,17 @@ class FindRoomViewModel(
 
     fun setCurrentSchool(school: String) {
         _uiState.update { current ->
-            current.copy(currentSchool = school, rooms = listOf())
+            current.copy(currentSchool = school, rooms = listOf(), hasSearched = false)
         }
     }
 
-    fun updateDay(newDay: String) {
-        when (newDay) {
-            "Monday" -> day = 1
-            "Tuesday" -> day = 2
-            "Wednesday" -> day = 4
-            "Thursday" -> day = 8
-            "Friday" -> day = 16
-            "Saturday" -> day = 32
-            else -> day = 64
-        }
+    /** [dayBit] uses the same bitmask as Course.days (Mo=1, Tu=2, ... Su=64). */
+    fun updateDay(dayBit: Int) {
+        _uiState.update { it.copy(selectedDay = dayBit) }
+    }
+
+    fun updateSearchQuery(query: String) {
+        _uiState.update { it.copy(searchQuery = query) }
     }
 
     fun getRooms(
@@ -65,25 +55,25 @@ class FindRoomViewModel(
         endHour: Int,
         endMin: Int
     ) {
+        if (_uiState.value.isLoading) return
+        _uiState.update { it.copy(isLoading = true) }
+
         viewModelScope.launch {
-            val startTime = (startHour * 3600) + startMin * 60
-            val endTime = (endHour * 3600) + endMin * 60
+            try {
+                val state = _uiState.value
+                val availableRooms = databaseRepo.getAvailableRooms(
+                    school = state.currentSchool,
+                    day = state.selectedDay,
+                    timeStart = (startHour * 3600) + startMin * 60,
+                    timeEnd = (endHour * 3600) + endMin * 60
+                )
 
-            val availableRooms = databaseRepo.getAvailableRooms(
-                school = _uiState.value.currentSchool,
-                day = day,
-                startTime,
-                endTime
-            )
-
-            _uiState.update { current ->
-                current.copy(rooms = availableRooms)
+                _uiState.update { current ->
+                    current.copy(rooms = availableRooms, hasSearched = true)
+                }
+            } finally {
+                _uiState.update { it.copy(isLoading = false) }
             }
-            println(startHour)
-            println(endTime)
-            println(day)
-            println(availableRooms.size)
         }
     }
-
 }
